@@ -1,0 +1,10 @@
+{
+  "name": "srp-client",
+  "version": "0.0.1",
+  "devDependencies": {
+    "grunt": "0.4.x",
+    "grunt-contrib-watch": "0.5.x",
+    "grunt-contrib-connect": "latest",
+    "grunt-connect-proxy": "latest"
+  }
+}
