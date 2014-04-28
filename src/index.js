@@ -1,46 +1,51 @@
 $(document).ready(function () {
-    var basicURL = "http://localhost:8080/";
+    function getSRPClient (username, password) {
+        return new SRPClient(username, password, 1024);
+    }
 
     function getRegisterationURL (username, password) {
-        var srp = new SRPClient(username, password),
+        var srp = getSRPClient(username, password),
             salt = srp.randomHexSalt(),
-            verifier = srp.calculateV(salt).toString();
+            verifier = srp.calculateV(salt).toString(16);
 
-        return "register?username=" + username + "&salt=" + salt + "&verifier=" + verifier;
+        return "/register?username=" + username + "&salt=" + salt + "&verifier=" + verifier;
     }
 
-    function getSRPClient (username, password) {
-        return new SRPClient(username, password);
-    }
+    $("#register").on("click", function (event) {
+        var username = $("#username").val(),
+            password = $("#password").val();
 
-    function getAuthenticationStep1URL (username, srp) {
-        A = srp.calculateA(srp.srpRandom());
-        return "auth/step1?username=" + username + "&A=" + A;
-    }
+        $.ajax({
+            url: getRegisterationURL(username, password),
+            type: "GET",
+            success: function (data) {
+                console.log(JSON.stringify(data));
+            }
+        });
 
+    });
 
     $("form").on("submit", function (event) {
         var username = $("#username").val(),
             password = $("#password").val(),
             srp = getSRPClient(username, password),
             a = srp.srpRandom(),
-            A = srp.calculateA(a);
+            A = srp.calculateA(a),
+            Sclient = "";
 
         event.preventDefault();
         $.ajax({
-            url: basicURL + "auth/step1?username=" + username + "&A=" + A,
-            // crossDomain : true,
+            url: "/auth/step1?username=" + username + "&A=" + A.toString(16),
             type: "GET",
-            // dataType: 'jsonp',
             success: function (data) {
                 if (!data.B || !data.salt)
                     return;
                 var B = new BigInteger();
                 B.fromString(data.B, 16);
-                var u = srp.calculateU(A, B),
-                    Sclient = srp.calculateS(data.B, data.salt, u, a);
+                var u = srp.calculateU(A, B);
+                Sclient = srp.calculateS(B, data.salt, u, a);
                 $.ajax({
-                    url: basicURL + "auth/step2?S=" + Sclient,
+                    url: "/auth/step2?S=" + Sclient.toString(16),
                     type: "GET",
                     success: function (result) {
                         console.log(result.auth);

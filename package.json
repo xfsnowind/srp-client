@@ -4,7 +4,9 @@
   "devDependencies": {
     "grunt": "0.4.x",
     "grunt-contrib-watch": "0.5.x",
-    "grunt-contrib-connect": "latest",
-    "grunt-connect-proxy": "latest"
+    "grunt-contrib-connect": "0.3.x",
+    "grunt-connect-proxy": "~0.1.6",
+    "grunt-contrib-copy": "latest",
+    "grunt-contrib-clean": "latest"
   }
 }

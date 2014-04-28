@@ -5,8 +5,11 @@ module.exports = function(grunt) {
 
     // Load libs
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-connect-proxy');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-connect-proxy');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+
 
     // Setup
     grunt.initConfig({
@@ -18,28 +21,39 @@ module.exports = function(grunt) {
             },
             script: {
                 files: ['src/**/*.js'],
-                tasks: ['default'],
+                tasks: ['copy:lib'],
                 options: {
                     atBegin: true
                 }
             }
         },
 
+        copy: {
+            lib: {
+                src: ['lib/**/*.js', 'src/**/*'],
+                dest: 'deploy/'
+            }
+        },
+
+        clean: {
+            build: ['deploy/src', 'deploy/lib'],
+        },
+
         connect: {
             server: {
                 options: {
-                    port: 9000,
-                    base: '.',
+                    port: 9001,
+                    base: 'deploy',
                     middleware: function (connect, options) {
-                        var config = [
-                            // Serve static files.
-                            connect.static(options.base),
-                            // Make empty directories browsable.
-                            connect.directory(options.base)
-                        ];
                         var proxy = require('grunt-connect-proxy/lib/utils').proxyRequest;
-                        config.unshift(proxy);
-                        return config;
+                        return [
+                           // Include the proxy first
+                           proxy,
+                           // Serve static files.
+                           connect.static(options.base),
+                           // Make empty directories browsable.
+                           connect.directory(options.base)
+                        ];
                     }
                 }
             },
@@ -47,9 +61,9 @@ module.exports = function(grunt) {
                 //Proxy urls starting with /touch to nesstar-dev to prevent
                 //same-origin problems when talking to rest server.
                 {
-                    context: '/',
+                    context: ['/auth', '/register'],
                     host: 'localhost',
-                    port: 8080,
+                    port: 3000,
                     https: false,
                     changeOrigin: false,
                     xforward: false
@@ -61,8 +75,13 @@ module.exports = function(grunt) {
 
     // Tasks
     grunt.registerTask('default', [
+        'copy',
         'configureProxies',
         'connect:server',
         'watch'
+    ]);
+
+    grunt.registerTask('clean', [
+        'clean'
     ]);
 };
