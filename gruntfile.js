@@ -30,7 +30,7 @@ module.exports = function(grunt) {
 
         copy: {
             lib: {
-                src: ['lib/**/*.js', 'src/**/*'],
+                src: ['lib/*.js', 'src/**/*'],
                 dest: 'deploy/'
             }
         },
@@ -74,7 +74,7 @@ module.exports = function(grunt) {
 
 
     // Tasks
-    grunt.registerTask('default', [
+    grunt.registerTask('server', [
         'copy',
         'configureProxies',
         'connect:server',

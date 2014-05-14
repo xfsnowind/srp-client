@@ -1,105 +1,26 @@
 ### Javascript Client for the Secure Remote Protocol (SRP)
 
-_**Warning**: this is an alpha release and is not ready for production use. Peer review is appreciated._
+This project is an experiment, that simply applys the Secure Remote Protocol (SRP) in Javascript Client for register and login. The library I used is [This](https://github.com/symeapp/srp-client), which provides both the client and server side interfaces ( **Warning**: the library I used is an alpha release and uses Mozilla Public License (MPL) 2.0, which means the projects using it must also be open-sourced.) Since we are using Java in the server side, so only the client API is used here. To display the result, the ['Server'](https://gitlab.nsd.uib.no/fx/srpserver) project is also needed.
 
-This library implements a Javascript client for the SRP protocol. The client aims to be compatible with SRP revision 6A, as defined in [RFC 5054](http://tools.ietf.org/html/rfc5054) ("Using the Secure Remote Password (SRP) Protocol for TLS Authentication"). It is released under the MPL.
+###Building and running
+--------------------
 
-The code is directly based on Tom Wu's [Javascript SRP demo](http://srp.stanford.edu/demo/demo.html), which is released under the [SRP license](http://srp.stanford.edu/license.txt).
+The project is based on Grunt which again use [npm](http://npmjs.org).  It is assumed that npm is already installed on your system.
 
-### Testing
+After cloning the project with git, run `npm -g install grunt-cli` and then `npm install`. This will download grunt and the projects build dependecies.
 
-This library is tested with Jasmine using the [official test vectors](http://tools.ietf.org/html/rfc5054#appendix-B) from the SRP specification. The specs can be run by opening `SpecRunner.html` in your browser.
+Once grunt is in place, run `grunt server` to resolve dependencies, build and serve the project, then open `http://localhost:9001` in your browser. Any changes will automatically be picked up and redeployed as long as `grunt server` is running.
 
 ### Usage
+To display the result, the following procedures are required:
 
-**Configuration**
-
-As shown in the examples below, this library accepts 1024, 1536, 2048, 4096, 6144 and 8192-bit group parameters. The default is 1024 bits.
-
-**Registration Example**
-
-```html
-<html>
-
-<head>
-  
-  <script type="text/javascript" src="jsbn.js"></script>
-  <script type="text/javascript" src="sha1.js"></script>
-  <script type="text/javascript" src="random.js"></script>
-  <script type="text/javascript" src="srp-client.js"></script>
-
-  <script type="text/javascript">
-
-  var bits     =  2048;
-  var username = 'username';
-  var password = 'password';
-
-  var srp = new SRPClient(username, password, bits);
-
-  // 1. The client generates a random hex salt.
-  var s = srp.randomHexSalt();
-  
-  // 2. The client calculates its verifier value.
-  var v = srp.calculateV(salt);
-  
-  // 3. The client sends the username, salt and
-  // verifier to the server, which stores all three.
-  
-  </script>
-
-</head>
-
-</html>
+In the client side (for this project):
+```bash
+npm install -g grunt-cli
+npm install
+grunt server
 ```
-
-**Authentication Example**
-
-```html
-<html>
-
-<head>
-
-  <script type="text/javascript" src="jsbn.js"></script>
-  <script type="text/javascript" src="sha1.js"></script>
-  <script type="text/javascript" src="sjcl.js"></script>
-  <script type="text/javascript" src="srp-client.js"></script>
-
-  <script type="text/javascript">
-  
-  var username = 'username';
-  var password = 'password';
-
-  var srp = new SRPClient(username, password, 2048);
-
-  // 1. The client generates and stores A.
-  var a = srp.srpRandom();
-  var A = srp.calculateA(a);
-
-  // 2. The client sends A to the server.
-  
-  // 3. The server receives A and generates B.
-  var b = srp.srpRandom();
-  var B = srp.calculateB(b);
-
-  // 4. The client and the server both calculate U.
-  var u = srp.calculateU(A, B);
-
-  // 5. The client generates its premaster secret.
-  var Sc = srp.calculateS(B, salt, u, a);
-  
-  // 6. The server generates its premaster secret.
-  var Ss = srp.calculateServerS(A, v, u, b);
-
-  // 7. The client and the server verify the secrets.
-  console.log('Server and client secrets match:');
-  console.log(Sc.toString() == Ss.toString());
-
-  </script>
-
-</head>
-
-</html>
-```
+In the server side, you have to follow [this]().
 
 ### Further Reading
 
@@ -108,4 +29,4 @@ As shown in the examples below, this library accepts 1024, 1536, 2048, 4096, 614
 
 ### License
 
-This library is released under the MPL.
+This [library](https://github.com/symeapp/srp-client) used is released under the `MPL`.
